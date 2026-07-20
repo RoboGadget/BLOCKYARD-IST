@@ -11,11 +11,102 @@
   const copyBtn = document.getElementById("copy-btn");
   const copyConfirm = document.getElementById("copy-confirm");
   const rootStyleTag = document.getElementById("root-vars");
+  const themeBtn = document.getElementById("theme-btn");
+  const themeModal = document.getElementById("theme-modal");
+  const themeModalClose = document.getElementById("theme-modal-close");
 
   let counters = { generic: 0, photo: 0, banner: 0, text: 0, container: 0 };
   let idCounter = 0;
   let selectedBlock = null;
   const colorVars = {}; // block id -> hex color, mirrored into the :root style tag
+
+  // Page-wide theme: becomes a shared :root block in the exported CSS.
+  const theme = {
+    pageBg: "#f4f1ea",
+    wallpaperUrl: "",
+    wallpaperFit: "cover",
+    boxOutline: "#26241f",
+    scrollbarColor: "#c8922a",
+    scrollbarTrack: "#111c2e",
+    scrollbarSize: 10,
+    headingFontUrl: "",
+    headingFontFamily: "",
+  };
+
+  function parseGoogleFontFamily(url) {
+    const match = url.match(/family=([^:&]+)/);
+    if (!match) return "";
+    return decodeURIComponent(match[1]).replace(/\+/g, " ");
+  }
+
+  function applyTheme() {
+    const root = document.documentElement.style;
+    root.setProperty("--theme-page-bg", theme.pageBg);
+    root.setProperty("--theme-wallpaper-image", theme.wallpaperUrl ? `url("${theme.wallpaperUrl}")` : "none");
+    root.setProperty("--theme-wallpaper-size", theme.wallpaperFit === "repeat" ? "auto" : theme.wallpaperFit);
+    root.setProperty("--theme-wallpaper-repeat", theme.wallpaperFit === "repeat" ? "repeat" : "no-repeat");
+    root.setProperty("--theme-box-outline", theme.boxOutline);
+    root.setProperty("--theme-scrollbar-color", theme.scrollbarColor);
+    root.setProperty("--theme-scrollbar-track", theme.scrollbarTrack);
+    root.setProperty("--theme-scrollbar-size", theme.scrollbarSize + "px");
+
+    if (theme.headingFontUrl) {
+      theme.headingFontFamily = parseGoogleFontFamily(theme.headingFontUrl);
+      let link = document.getElementById("theme-font-link");
+      if (!link) {
+        link = document.createElement("link");
+        link.id = "theme-font-link";
+        link.rel = "stylesheet";
+        document.head.appendChild(link);
+      }
+      link.href = theme.headingFontUrl;
+      root.setProperty("--theme-heading-font", theme.headingFontFamily ? `"${theme.headingFontFamily}"` : "var(--font-display)");
+    } else {
+      theme.headingFontFamily = "";
+      root.setProperty("--theme-heading-font", "var(--font-display)");
+    }
+  }
+
+  themeBtn.addEventListener("click", () => themeModal.classList.remove("hidden"));
+  themeModalClose.addEventListener("click", () => themeModal.classList.add("hidden"));
+  themeModal.addEventListener("click", (e) => {
+    if (e.target === themeModal) themeModal.classList.add("hidden");
+  });
+
+  document.getElementById("theme-page-bg").addEventListener("input", (e) => {
+    theme.pageBg = e.target.value;
+    applyTheme();
+  });
+  document.getElementById("theme-wallpaper-url").addEventListener("input", (e) => {
+    theme.wallpaperUrl = e.target.value.trim();
+    applyTheme();
+  });
+  document.getElementById("theme-wallpaper-fit").addEventListener("change", (e) => {
+    theme.wallpaperFit = e.target.value;
+    applyTheme();
+  });
+  document.getElementById("theme-box-outline").addEventListener("input", (e) => {
+    theme.boxOutline = e.target.value;
+    applyTheme();
+  });
+  document.getElementById("theme-scrollbar-color").addEventListener("input", (e) => {
+    theme.scrollbarColor = e.target.value;
+    applyTheme();
+  });
+  document.getElementById("theme-scrollbar-track").addEventListener("input", (e) => {
+    theme.scrollbarTrack = e.target.value;
+    applyTheme();
+  });
+  document.getElementById("theme-scrollbar-size").addEventListener("input", (e) => {
+    theme.scrollbarSize = Math.max(4, parseInt(e.target.value) || 10);
+    applyTheme();
+  });
+  document.getElementById("theme-heading-font").addEventListener("input", (e) => {
+    theme.headingFontUrl = e.target.value.trim();
+    applyTheme();
+  });
+
+  applyTheme();
 
   const DEFAULT_SIZE = {
     generic: { w: 200, h: 150 },
@@ -283,6 +374,8 @@
     const contentEl = b.querySelector(".block-content");
     const currentPadding = parseInt(contentEl.style.padding) || 0;
     const currentMargin = parseInt(b.style.margin) || 0;
+    const currentRadius = parseInt(b.style.borderRadius) || 0;
+    const currentOpacity = b.dataset.opacity ? parseInt(b.dataset.opacity) : 100;
 
     propsPanel.innerHTML = `
       <h2 class="sidebar-title">Block properties</h2>
@@ -324,13 +417,24 @@
           <input type="number" min="0" id="prop-margin" value="${currentMargin}">
         </div>
       </div>
+      <div class="prop-row">
+        <div class="prop-group">
+          <label for="prop-radius">Corner radius (px)</label>
+          <input type="number" min="0" id="prop-radius" value="${currentRadius}">
+        </div>
+        ${type === "photo" ? `
+        <div class="prop-group">
+          <label for="prop-opacity">Image opacity (%)</label>
+          <input type="number" min="0" max="100" id="prop-opacity" value="${currentOpacity}">
+        </div>` : ""}
+      </div>
       ${hasColor ? `
       <div class="prop-group">
         <label for="prop-color">Background color</label>
         <input type="color" id="prop-color" value="${rgbToHex(getComputedStyle(getColorTarget(b)).backgroundColor)}">
-        <small style="display:block;color:var(--ink-soft);font-size:11px;margin-top:4px;">Saved as a CSS variable in :root when you export.</small>
+        <small style="display:block;color:var(--text-muted);font-size:11px;margin-top:4px;">Saved as a CSS variable in :root when you export.</small>
       </div>` : ""}
-      ${type === "container" ? `<p style="font-size:11px;color:var(--ink-soft);">Drag other blocks onto this one to nest them inside.</p>` : ""}
+      ${type === "container" ? `<p style="font-size:11px;color:var(--text-muted);">Drag other blocks onto this one to nest them inside.</p>` : ""}
       <button class="props-delete-btn" id="prop-delete">Delete this block</button>
     `;
 
@@ -500,7 +604,7 @@
     const html = `<div class="page-container">\n${indent(htmlParts.join("\n\n"))}\n</div>`;
     const css = `${rootBlock}.page-container {\n  position: relative;\n  width: ${pageWidth}px;\n  min-height: ${Math.max(maxBottom + 24, 200)}px;\n  margin: 0 auto;\n}\n\n${cssRules.join("\n\n")}`;
 
-    return `<!-- Generated with Blockyard — plain HTML + CSS only, no JavaScript -->\n${html}\n\n<style>\n${css}\n</style>`;
+    return `<!-- Generated with IronSuit&Tie Layout Builder — plain HTML + CSS only, no JavaScript -->\n${html}\n\n<style>\n${css}\n</style>`;
   }
 
   exportBtn.addEventListener("click", () => {
