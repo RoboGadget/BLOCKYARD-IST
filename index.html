@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IronSuit&amp;Tie — Layout Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="css/style.css">
+<style id="root-vars"></style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="arc-icon">
+      <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="20" cy="20" r="17" fill="none" stroke="var(--border-glow)" stroke-width="2"/>
+        <circle cx="20" cy="20" r="12" fill="none" stroke="var(--arc)" stroke-width="2"/>
+        <circle cx="20" cy="20" r="7" fill="var(--arc-dim)" stroke="var(--arc-bright)" stroke-width="1.5"/>
+        <circle cx="20" cy="20" r="3" fill="var(--arc-bright)"/>
+        <line x1="20" y1="3" x2="20" y2="9" stroke="var(--gold-bright)" stroke-width="2"/>
+        <line x1="20" y1="31" x2="20" y2="37" stroke="var(--gold-bright)" stroke-width="2"/>
+        <line x1="3" y1="20" x2="9" y2="20" stroke="var(--gold-bright)" stroke-width="2"/>
+        <line x1="31" y1="20" x2="37" y2="20" stroke="var(--gold-bright)" stroke-width="2"/>
+      </svg>
+    </span>
+    <div>
+      <h1>IronSuit<span>&amp;Tie</span></h1>
+      <p>// LAYOUT BUILDER — sketch a page, export clean HTML/CSS</p>
+    </div>
+    <div class="status-row">
+      <span class="status-dot arc"></span>
+      <span class="status-dot gold"></span>
+      <span class="status-dot red"></span>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <label class="canvas-size-field">
+      Page width
+      <select id="canvas-width">
+        <option value="1200">1200px (desktop)</option>
+        <option value="960">960px</option>
+        <option value="768">768px (tablet)</option>
+        <option value="375">375px (mobile)</option>
+      </select>
+    </label>
+    <button id="theme-btn" class="btn btn-secondary">Theme</button>
+    <button id="export-btn" class="btn btn-primary">HTML/CSS ME</button>
+  </div>
+</header>
+
+<div class="workspace">
+
+  <aside class="sidebar sidebar-left">
+    <h2 class="sidebar-title">Add a block</h2>
+    <button class="add-btn" data-type="generic">
+      <span class="swatch swatch-generic">▢</span>
+      <span>
+        <strong>Div</strong>
+        <small>Empty layout block</small>
+      </span>
+    </button>
+    <button class="add-btn" data-type="photo">
+      <span class="swatch swatch-photo">🖼</span>
+      <span>
+        <strong>Photo</strong>
+        <small>Image placeholder</small>
+      </span>
+    </button>
+    <button class="add-btn" data-type="banner">
+      <span class="swatch swatch-banner">▭</span>
+      <span>
+        <strong>Banner</strong>
+        <small>Full-width heading strip</small>
+      </span>
+    </button>
+    <button class="add-btn" data-type="text">
+      <span class="swatch swatch-text">✎</span>
+      <span>
+        <strong>Text</strong>
+        <small>Paragraph block</small>
+      </span>
+    </button>
+    <button class="add-btn" data-type="container">
+      <span class="swatch swatch-container">⬚</span>
+      <span>
+        <strong>Container</strong>
+        <small>Holds other blocks inside it</small>
+      </span>
+    </button>
+
+    <div class="sidebar-note">
+      <p><strong>How to use</strong></p>
+      <ol>
+        <li>Add blocks from above</li>
+        <li>Drag the label bar to move — drop onto a Container to nest inside it</li>
+        <li>Drag the corner to resize</li>
+        <li>Click a block to set its name, size, color, padding, and margin</li>
+        <li>Hit <em>HTML/CSS ME</em> when done</li>
+      </ol>
+    </div>
+  </aside>
+
+  <main class="canvas-area">
+    <div class="canvas-scroll">
+      <div id="canvas" class="canvas"></div>
+    </div>
+  </main>
+
+  <aside class="sidebar sidebar-right" id="props-panel">
+    <h2 class="sidebar-title">Block properties</h2>
+    <div class="props-empty">
+      <p>Select a block on the canvas to edit its name, position, size, and color.</p>
+    </div>
+  </aside>
+
+</div>
+
+<div id="theme-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Page Theme</h2>
+      <button id="theme-modal-close" class="btn btn-icon" aria-label="Close">×</button>
+    </div>
+    <p class="modal-sub">These all become CSS variables in :root when you export, so the page's whole look can be retuned from one place after pasting.</p>
+
+    <div class="prop-row">
+      <div class="prop-group">
+        <label for="theme-page-bg">Page background color</label>
+        <input type="color" id="theme-page-bg" value="#f4f1ea">
+      </div>
+      <div class="prop-group">
+        <label for="theme-box-outline">Box outline color</label>
+        <input type="color" id="theme-box-outline" value="#26241f">
+      </div>
+    </div>
+
+    <div class="prop-group">
+      <label for="theme-wallpaper-url">Wallpaper image URL (optional)</label>
+      <input type="text" id="theme-wallpaper-url" placeholder="https://example.com/image.jpg">
+    </div>
+    <div class="prop-group">
+      <label for="theme-wallpaper-fit">Wallpaper fit</label>
+      <select id="theme-wallpaper-fit">
+        <option value="cover">Cover (fill, cropped)</option>
+        <option value="contain">Contain (fit inside, no crop)</option>
+        <option value="repeat">Tile / repeat</option>
+        <option value="100% 100%">Stretch to fill</option>
+      </select>
+    </div>
+
+    <div class="prop-row">
+      <div class="prop-group">
+        <label for="theme-scrollbar-color">Scrollbar color</label>
+        <input type="color" id="theme-scrollbar-color" value="#c8922a">
+      </div>
+      <div class="prop-group">
+        <label for="theme-scrollbar-track">Scrollbar track</label>
+        <input type="color" id="theme-scrollbar-track" value="#111c2e">
+      </div>
+      <div class="prop-group">
+        <label for="theme-scrollbar-size">Size (px)</label>
+        <input type="number" id="theme-scrollbar-size" min="4" max="24" value="10">
+      </div>
+    </div>
+
+    <div class="prop-group">
+      <label for="theme-heading-font">Heading font — paste a Google Fonts link</label>
+      <input type="text" id="theme-heading-font" placeholder="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700">
+      <small style="display:block;color:var(--text-muted);font-size:11px;margin-top:4px;">Applies to Banner block headings, live in the tool and in the exported CSS.</small>
+    </div>
+  </div>
+</div>
+
+<div id="export-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Your layout, ready to paste</h2>
+      <button id="modal-close" class="btn btn-icon" aria-label="Close">×</button>
+    </div>
+    <p class="modal-sub">Copy this into an .html file. Pure HTML and CSS — no JavaScript, no dependencies.</p>
+    <textarea id="export-output" readonly spellcheck="false"></textarea>
+    <div class="modal-actions">
+      <button id="copy-btn" class="btn btn-primary">Copy to clipboard</button>
+      <span id="copy-confirm" class="copy-confirm"></span>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
