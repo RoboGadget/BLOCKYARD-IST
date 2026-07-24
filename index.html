@@ -89,13 +89,24 @@
       </span>
     </button>
 
+    <div class="sidebar-note" id="link-library">
+      <p><strong>Link library</strong></p>
+      <p style="color:var(--text-muted);font-size:11px;margin:4px 0 8px;">Paste an image URL, or a Google Fonts link — saved here and in the exported :root variables.</p>
+      <div class="link-add-row">
+        <input type="text" id="link-url-input" placeholder="https://... image or fonts.googleapis.com link">
+        <button id="link-add-btn" class="btn btn-secondary btn-small">Add</button>
+      </div>
+      <ul id="link-list" class="link-list"></ul>
+    </div>
+
     <div class="sidebar-note">
       <p><strong>How to use</strong></p>
       <ol>
         <li>Add blocks from above</li>
         <li>Drag the label bar to move — drop onto a Container to nest inside it</li>
         <li>Drag the corner to resize</li>
-        <li>Click a block to set its name, size, color, padding, and margin</li>
+        <li>Click a block to set its name, size, color, corners, padding, and margin</li>
+        <li>Use <em>Theme</em> for page-wide color, wallpaper, and scrollbars</li>
         <li>Hit <em>HTML/CSS ME</em> when done</li>
       </ol>
     </div>
@@ -110,7 +121,7 @@
   <aside class="sidebar sidebar-right" id="props-panel">
     <h2 class="sidebar-title">Block properties</h2>
     <div class="props-empty">
-      <p>Select a block on the canvas to edit its name, position, size, and color.</p>
+      <p>Select a block on the canvas to edit its name, position, size, color, and corners.</p>
     </div>
   </aside>
 
@@ -132,6 +143,10 @@
       <div class="prop-group">
         <label for="theme-box-outline">Box outline color</label>
         <input type="color" id="theme-box-outline" value="#26241f">
+      </div>
+      <div class="prop-group">
+        <label for="theme-box-outline-width">Outline width (px)</label>
+        <input type="number" id="theme-box-outline-width" min="0" max="10" step="0.5" value="1.5">
       </div>
     </div>
 
